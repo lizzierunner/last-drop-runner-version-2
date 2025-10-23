@@ -1,0 +1,165 @@
+/* charity: water brand block */
+.cw-brand {
+	margin-bottom: 12px;
+	text-align: center;
+}
+.cw-logo {
+	height: 48px;
+	vertical-align: middle;
+}
+.cw-name {
+	display: block;
+	font-family: serif;
+	font-size: 1.15rem;
+	color: var(--cw-yellow);
+	margin-top: 2px;
+	letter-spacing: 0.02em;
+}
+:root {
+  --cw-yellow: #FFD600;
+  --bg:#0E2A47;
+  --surface:#0F3358;
+  --cyan:#56CCF2;
+  --gold:#F2C94C;
+  --text:#EAF2F8;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:linear-gradient(135deg,var(--bg) 0%,var(--surface) 60%,#142E50 100%);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial}
+.hero{padding:24px 16px 8px;text-align:center}
+.runner-img{width:300px;max-width:90%;border-radius:12px;box-shadow:0 0 18px rgba(86,204,242,.5)}
+.tagline{opacity:.9;margin:6px 0 0}
+main{max-width:900px;margin:0 auto;padding:12px}
+.hud{display:flex;gap:24px;justify-content:center;padding:12px;margin:8px 0;border:1px solid rgba(86,204,242,.35);border-radius:12px;background:rgba(255,255,255,.04);backdrop-filter:blur(4px)}
+.hud{display:flex;gap:24px;justify-content:center;padding:12px;margin:8px 0;border:1px solid rgba(86,204,242,.35);border-radius:12px;background:rgba(255,255,255,.04);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.mission{padding:18px;text-align:center}
+.muted{opacity:.8}
+.progress{position:relative;width:86%;margin:16px auto;height:16px;background:#1B263B;border-radius:999px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.bar{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--cyan));transition:width .35s ease;box-shadow: 0 0 8px var(--cw-yellow);}
+.controls{display:flex;gap:12px;justify-content:center;margin-top:12px}
+.card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;text-align:center;margin-top:20px}
+button{background:var(--cyan);color:#0E2A47;border:none;border-radius:10px;padding:10px 16px;font-weight:700;cursor:pointer}
+button:hover{background:var(--gold)}
+.footer{opacity:.6;text-align:center;margin:24px 0}
+.hint{opacity:.7;font-size:.92rem}
+@media (prefers-reduced-motion: reduce){ .bar{transition:none} }
+
+/* Responsive adjustments for mobile */
+@media (max-width: 600px) {
+	.hero {
+		padding: 16px 4px 4px;
+	}
+	.runner-img {
+		width: 180px;
+		max-width: 98%;
+	}
+	main {
+		padding: 4px;
+	}
+	.hud {
+		flex-direction: column;
+		gap: 10px;
+		padding: 8px;
+		font-size: 1.1rem;
+	}
+	.mission {
+		padding: 10px 2px;
+	}
+	.progress {
+		width: 98%;
+		height: 12px;
+		margin: 12px auto;
+	}
+	.controls {
+		flex-direction: column;
+		gap: 8px;
+		margin-top: 8px;
+	}
+	button {
+		width: 100%;
+		font-size: 1rem;
+		padding: 12px 0;
+	}
+	.card {
+		padding: 12px 4px;
+		margin-top: 12px;
+	}
+	h1, h2 {
+		font-size: 1.3rem;
+	}
+	.footer {
+		margin: 16px 0;
+		font-size: 0.95rem;
+	}
+}
+
+/* Highlight start button with charity: water yellow */
+#startBtn {
+  background: var(--cw-yellow);
+  color: #0E2A47;
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 10px var(--cw-yellow);
+  font-size: 1.12rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+#startBtn:hover {
+  background: var(--gold);
+  box-shadow: 0 0 18px var(--cw-yellow);
+}
+
+/* Make Reset button visually prominent */
+#resetBtn {
+  background: var(--gold);
+  color: #0E2A47;
+  border: 2px solid var(--cw-yellow);
+  box-shadow: 0 0 8px var(--cw-yellow);
+  font-size: 1.08rem;
+  font-weight: 800;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+#resetBtn:hover {
+  background: var(--cw-yellow);
+  box-shadow: 0 0 16px var(--gold);
+}
+
+/* Add drop icon motif to HUD */
+.hud span::before {
+  content: "💧 ";
+  color: var(--cw-yellow);
+  font-size: 1.1em;
+  vertical-align: middle;
+}
+
+/* Spectacular win celebration styles */
+.celebration {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  background: rgba(255, 214, 0, 0.85);
+  animation: fadeInCelebration 0.7s;
+}
+@keyframes fadeInCelebration {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.celebration-message {
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: #0E2A47;
+  text-shadow: 0 0 24px #fff, 0 0 8px #FFD600;
+  padding: 32px 48px;
+  border-radius: 24px;
+  background: rgba(255,255,255,0.85);
+  box-shadow: 0 0 40px #FFD600;
+  animation: pulseCelebration 1.2s infinite alternate;
+}
+@keyframes pulseCelebration {
+  from { transform: scale(1); }
+  to { transform: scale(1.08); }
+}

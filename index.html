@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Last Drop (Runner Edition)</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <header class="hero">
+      <div class="cw-brand">
+  <img src="assets/charity_water_logo.png" alt="charity: water logo" class="cw-logo"/>
+        <span class="cw-name">charity: water</span>
+      </div>
+      <img src="assets/runner.png" alt="Cyberpunk desert runner" class="runner-img"/>
+      <h1>LAST DROP</h1>
+      <p class="tagline">Every Drop Counts. Every Mile Matters.</p>
+  </header>
+
+  <main>
+    <section id="hud" class="hud" aria-label="Run heads-up display" role="region">
+      <div>💧 Hydration: <span id="hydration">100</span>%</div>
+      <div>⚡ XP: <span id="xp">0</span></div>
+    </section>
+
+    <section id="mission" class="mission">
+      <h2>Mission: The Wasteland Circuit</h2>
+      <p class="muted">Hold pace. Watch hydration. Avoid raiders.</p>
+      <div class="progress" aria-label="Mission progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div id="bar" class="bar"></div>
+      </div>
+      <p class="hint">Tip: Try the Konami Code ↑ ↑ ↓ ↓ ← → ← → B A</p>
+      <div id="raiderAlert" class="raider-alert" hidden>
+        <span>🚨 Raider ahead! Dodge quickly!</span>
+        <button id="dodgeBtn">Dodge Raider!</button>
+      </div>
+      <div class="controls">
+        <button id="startBtn">Start</button>
+        <button id="resetBtn">Reset</button>
+      </div>
+    </section>
+
+    <section id="results" class="results card" hidden>
+      <div id="celebration" class="celebration" hidden>
+        <span class="celebration-message">🎉 YOU WIN! Mission Complete! 💧</span>
+      </div>
+      <h1>Mission Complete 💧</h1>
+      <p>You earned <strong><span id="finalXP">0</span></strong> XP</p>
+      <p class="fact">🌍 <span id="fact"></span></p>
+      <button id="runAgain">Run Again</button>
+    </section>
+  </main>
+
+  <footer class="footer">© 2025 Elizabeth Johnson</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
