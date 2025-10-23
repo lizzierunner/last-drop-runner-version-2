@@ -1,3 +1,23 @@
+#audioToggle {
+	background: #F2C94C;
+	color: #142E50;
+	border-radius: 6px;
+	padding: 4px 12px;
+	margin: 8px 4px;
+	font-weight: 700;
+	border: none;
+	cursor: pointer;
+}
+#shareBtn {
+	background: #56CCF2;
+	color: #142E50;
+	border-radius: 6px;
+	padding: 8px 18px;
+	margin: 8px 4px;
+	font-weight: 700;
+	border: none;
+	cursor: pointer;
+}
 /* charity: water brand block */
 .cw-brand {
 	margin-bottom: 12px;
@@ -23,12 +43,21 @@
   --gold:#F2C94C;
   --text:#EAF2F8;
 }
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
 
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;background:linear-gradient(135deg,var(--bg) 0%,var(--surface) 60%,#142E50 100%);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial}
+body{margin:0;background:linear-gradient(135deg,var(--bg) 0%,var(--surface) 60%,#142E50 100%);color:var(--text);font-family:'Montserrat', 'Arial Black', Segoe UI, Roboto, Helvetica, Arial, sans-serif}
 .hero{padding:24px 16px 8px;text-align:center}
-.runner-img{width:300px;max-width:90%;border-radius:12px;box-shadow:0 0 18px rgba(86,204,242,.5)}
+/* Drop logo removed */
+.runner-img.focal {
+	width: 600px;
+	max-width: 98vw;
+	border-radius: 18px;
+	box-shadow: 0 0 32px 8px rgba(86,204,242,.7), 0 0 80px 10px #FFD600;
+	margin: 0 auto 24px auto;
+	display: block;
+}
 .tagline{opacity:.9;margin:6px 0 0}
 main{max-width:900px;margin:0 auto;padding:12px}
 .hud{display:flex;gap:24px;justify-content:center;padding:12px;margin:8px 0;border:1px solid rgba(86,204,242,.35);border-radius:12px;background:rgba(255,255,255,.04);backdrop-filter:blur(4px)}
@@ -42,6 +71,45 @@ main{max-width:900px;margin:0 auto;padding:12px}
 button{background:var(--cyan);color:#0E2A47;border:none;border-radius:10px;padding:10px 16px;font-weight:700;cursor:pointer}
 button:hover{background:var(--gold)}
 .footer{opacity:.6;text-align:center;margin:24px 0}
+/* Footer links styling */
+.footer-link {
+	color: var(--cw-yellow);
+	font-weight: 700;
+	text-decoration: underline;
+	margin: 0 4px;
+	transition: color 0.2s;
+}
+.footer-link:hover {
+	color: var(--cyan);
+}
+.footer-link.donate {
+	color: var(--gold);
+	font-weight: 900;
+	background: rgba(255,214,0,0.08);
+	border-radius: 6px;
+	padding: 2px 8px;
+}
+/* Accessibility buttons */
+#contrastToggle {
+	background: #142E50;
+	color: #FFD600;
+	border-radius: 6px;
+	padding: 4px 12px;
+	margin: 8px 4px;
+	font-weight: 700;
+	border: none;
+	cursor: pointer;
+}
+#ttsBtn {
+	background: #FFD600;
+	color: #142E50;
+	border-radius: 6px;
+	padding: 4px 12px;
+	margin: 8px 4px;
+	font-weight: 700;
+	border: none;
+	cursor: pointer;
+}
 .hint{opacity:.7;font-size:.92rem}
 @media (prefers-reduced-motion: reduce){ .bar{transition:none} }
 
@@ -85,8 +153,15 @@ button:hover{background:var(--gold)}
 		padding: 12px 4px;
 		margin-top: 12px;
 	}
-	h1, h2 {
-		font-size: 1.3rem;
+	/* Main title styling */
+	.main-title {
+		font-size: 2.7rem;
+		margin: 0.2em 0 0.1em;
+		font-family: 'Montserrat', 'Arial Black', Arial, sans-serif;
+		font-weight: 900;
+		letter-spacing: 0.08em;
+		color: var(--cw-yellow);
+		text-shadow: 0 0 18px #142E50, 0 0 8px #FFD600;
 	}
 	.footer {
 		margin: 16px 0;
@@ -132,6 +207,27 @@ button:hover{background:var(--gold)}
   font-size: 1.1em;
   vertical-align: middle;
 }
+/* Clickable drop icon */
+.drop-icon {
+	cursor: pointer;
+	font-size: 1.5em;
+	margin-left: 8px;
+	transition: opacity 0.3s;
+}
+.drop-icon.disappear {
+	opacity: 0;
+	pointer-events: none;
+}
+
+/* Runner image rotation */
+.runner-img.focal.rotate {
+	animation: rotateRunner 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+}
+@keyframes rotateRunner {
+	0% { transform: rotate(0deg); }
+	50% { transform: rotate(25deg) scale(1.08); }
+	100% { transform: rotate(0deg); }
+}
 
 /* Spectacular win celebration styles */
 .celebration {
@@ -143,6 +239,16 @@ button:hover{background:var(--gold)}
   z-index: 9999;
   background: rgba(255, 214, 0, 0.85);
   animation: fadeInCelebration 0.7s;
+}
+/* Animated background canvas */
+#bgCanvas {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: -1;
+	pointer-events: none;
 }
 @keyframes fadeInCelebration {
   from { opacity: 0; }
@@ -162,4 +268,62 @@ button:hover{background:var(--gold)}
 @keyframes pulseCelebration {
   from { transform: scale(1); }
   to { transform: scale(1.08); }
+}
+/* Story/About section styling */
+.story {
+	background: linear-gradient(120deg, #142E50 60%, var(--surface) 100%);
+	border-left: 6px solid var(--cw-yellow);
+	color: var(--text);
+	font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+	margin-bottom: 18px;
+}
+.story h2, .story h3, .impact h2, .mission-list {
+	color: var(--cw-yellow);
+	font-family: 'Montserrat', 'Arial Black', Arial, sans-serif;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+.story ul {
+	text-align: left;
+	margin: 0 auto 0 0;
+	padding-left: 1.2em;
+}
+.story li {
+	margin-bottom: 6px;
+}
+
+/* Mission section styling */
+.mission-list {
+	text-align: left;
+	margin: 0 auto 0 0;
+	padding-left: 1.2em;
+	color: var(--gold);
+	font-family: 'Oswald', 'Arial Black', Arial, sans-serif;
+}
+.mission-list li {
+	margin-bottom: 8px;
+	font-size: 1.08rem;
+}
+
+/* Social Impact Features section styling */
+.impact {
+	background: linear-gradient(120deg, #0F3358 60%, #142E50 100%);
+	border-left: 6px solid var(--cyan);
+	color: var(--text);
+	font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+	margin-bottom: 18px;
+}
+.impact h2 {
+	color: var(--cyan);
+	font-family: 'Oswald', 'Arial Black', Arial, sans-serif;
+	letter-spacing: 0.04em;
+}
+.impact ul {
+	text-align: left;
+	margin: 0 auto 0 0;
+	padding-left: 1.2em;
+}
+.impact li {
+	margin-bottom: 6px;
+	font-size: 1.05rem;
 }

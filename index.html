@@ -8,37 +8,78 @@
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
+  <canvas id="bgCanvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-1;pointer-events:none;"></canvas>
   <header class="hero">
       <div class="cw-brand">
-  <img src="assets/charity_water_logo.png" alt="charity: water logo" class="cw-logo"/>
+        <img src="assets/charity_water_logo.png" alt="charity: water logo" class="cw-logo"/>
         <span class="cw-name">charity: water</span>
       </div>
-      <img src="assets/runner.png" alt="Cyberpunk desert runner" class="runner-img"/>
-      <h1>LAST DROP</h1>
+  <!-- Drop logo removed -->
+  <img src="assets/runner.png" alt="Cyberpunk desert runner" class="runner-img focal"/>
+      <h1 class="main-title">LAST DROP</h1>
       <p class="tagline">Every Drop Counts. Every Mile Matters.</p>
   </header>
 
   <main>
+  <!-- Social Impact Features Section -->
+      <section id="impact" class="impact card">
+        <h2>Social Impact Features</h2>
+        <ul>
+          <li><strong>Miles : Drops</strong> — Real miles tracked via GPS convert into digital "drops" to fund clean water projects.</li>
+          <li><strong>Unlockable Fact Files</strong> — Reveal true stories of communities with new wells or tech.</li>
+          <li><strong>Season Challenges</strong> — Global player totals unlock charity water milestones.</li>
+        </ul>
+      </section>
+  <!-- Story/About Section -->
+      <section id="story" class="story card">
+        <h2>About Last Drop: A Charity Water Run</h2>
+        <p><strong>Overview:</strong> In 2157, water is currency. Corporations hoard where desund scavenger factions roam. In the wasteland, guided by rival factions, you make bold decisions and interact with the world.</p>
+        <p>You are a Runner-00, Propiet Refill, delivering audio events and interactive decisions each season.</p>
+        <h3>Season One: The Wasteland Circuit</h3>
+        <ul>
+          <li><strong>The Runner’s Code:</strong> Outrun a filler. First mission.</li>
+          <li><strong>Dry Heat:</strong> Storm incoming. Find a filter unit.</li>
+          <li><strong>Echo Wells:</strong> Discover a true backstory, restore wells.</li>
+          <li><strong>Black Gold:</strong> Post upgrades, purify solar farms.</li>
+          <li><strong>Mirage Protocol:</strong> Binary choices alter story path and global Water Reclamation Index.</li>
+          <li><strong>The Oasis Gambit:</strong> Final storm, confirm real extraction.</li>
+        </ul>
+      </section>
     <section id="hud" class="hud" aria-label="Run heads-up display" role="region">
-      <div>💧 Hydration: <span id="hydration">100</span>%</div>
+    <div>💧 Hydration: <span id="hydration">100</span>% <span id="dropIcon" class="drop-icon" title="Click for boost">🟡</span></div>
       <div>⚡ XP: <span id="xp">0</span></div>
     </section>
 
     <section id="mission" class="mission">
-      <h2>Mission: The Wasteland Circuit</h2>
-      <p class="muted">Hold pace. Watch hydration. Avoid raiders.</p>
-      <div class="progress" aria-label="Mission progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-        <div id="bar" class="bar"></div>
-      </div>
-      <p class="hint">Tip: Try the Konami Code ↑ ↑ ↓ ↓ ← → ← → B A</p>
-      <div id="raiderAlert" class="raider-alert" hidden>
-        <span>🚨 Raider ahead! Dodge quickly!</span>
-        <button id="dodgeBtn">Dodge Raider!</button>
-      </div>
-      <div class="controls">
-        <button id="startBtn">Start</button>
-        <button id="resetBtn">Reset</button>
-      </div>
+        <div class="difficulty-select">
+          <label for="difficulty">Difficulty:</label>
+          <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="normal" selected>Normal</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+        <h2>Season One Missions: The Wasteland Circuit</h2>
+        <ol class="mission-list">
+          <li><strong>The Runner’s Code:</strong> Outrun a filler. First mission. Turn up first pilloc.</li>
+          <li><strong>Dry Heat:</strong> Storm incoming. Find a filter unit.</li>
+          <li><strong>Echo Wells:</strong> Discover a true backstory, restore wells.</li>
+          <li><strong>Black Gold:</strong> Post upgrades, purify solar farms.</li>
+          <li><strong>Mirage Protocol:</strong> Binary choices alter story path and global Water Reclamation Index.</li>
+          <li><strong>The Oasis Gambit:</strong> Final storm, confirm real extraction.</li>
+        </ol>
+        <div class="progress" aria-label="Mission progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div id="bar" class="bar"></div>
+        </div>
+        <p class="hint">Tip: Try the Konami Code ↑ ↑ ↓ ↓ ← → ← → B A</p>
+        <div id="raiderAlert" class="raider-alert" hidden>
+          <span>🚨 Raider ahead! Dodge quickly!</span>
+          <button id="dodgeBtn">Dodge Raider!</button>
+        </div>
+        <div class="controls">
+          <button id="startBtn">Start</button>
+          <button id="resetBtn">Reset</button>
+        </div>
     </section>
 
     <section id="results" class="results card" hidden>
@@ -48,12 +89,27 @@
       <h1>Mission Complete 💧</h1>
       <p>You earned <strong><span id="finalXP">0</span></strong> XP</p>
       <p class="fact">🌍 <span id="fact"></span></p>
+    <div id="leaderboard" class="leaderboard"></div>
+  <div id="skinUnlock" class="skin-unlock"></div>
       <button id="runAgain">Run Again</button>
+    <button id="shareBtn" class="footer-link" style="background:#56CCF2;color:#142E50;border-radius:6px;padding:8px 18px;margin:8px 4px;font-weight:700;border:none;cursor:pointer;">Share Result</button>
     </section>
   </main>
 
-  <footer class="footer">© 2025 Elizabeth Johnson</footer>
+  <footer class="footer">
+    © 2025 Elizabeth Johnson &nbsp;|&nbsp;
+    <a href="https://www.charitywater.org/" target="_blank" rel="noopener" class="footer-link">charity: water</a>
+    &nbsp;|&nbsp;
+    <a href="https://www.charitywater.org/donate" target="_blank" rel="noopener" class="footer-link donate">Donate</a>
+    <br>
+    <button id="audioToggle" class="footer-link" style="background:#F2C94C;color:#142E50;border-radius:6px;padding:4px 12px;margin:8px 4px;font-weight:700;border:none;cursor:pointer;">Mute Audio</button>
+    <button id="contrastToggle" class="footer-link" style="background:#142E50;color:#FFD600;border-radius:6px;padding:4px 12px;margin:8px 4px;">High Contrast</button>
+    <button id="ttsBtn" class="footer-link" style="background:#FFD600;color:#142E50;border-radius:6px;padding:4px 12px;margin:8px 4px;">Text to Speech</button>
+  </footer>
 
+  <audio id="audioCollect" src="assets/powerup.wav" preload="auto"></audio>
+  <audio id="audioMiss" src="assets/error.wav" preload="auto"></audio>
+  <audio id="audioWin" src="assets/mission-complete.wav" preload="auto"></audio>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script src="app.js"></script>
 </body>
