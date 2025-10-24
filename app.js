@@ -1,4 +1,7 @@
 let hydration=100,xp=0,progress=0,timer=null;
+let timeLeft = 0;
+let timeLimit = 0;
+let timeInterval = null;
 const milestoneMessages = [
   { score: 100, message: '💧 Milestone: First 100 XP! Every drop counts.' },
   { score: 250, message: '🌟 Milestone: 250 XP! You are making a difference.' },
@@ -13,6 +16,7 @@ let xpPerTick = 50;
 let progressPerTick = 10;
 let raiderPenalty = 20;
 let winXP = 500;
+let raiderChance = 0.2;
 const hydrationEl=document.getElementById('hydration');
 const xpEl=document.getElementById('xp');
 const barEl=document.getElementById('bar');
@@ -28,30 +32,41 @@ const difficultySelect = document.getElementById('difficulty');
 if (difficultySelect) {
   difficultySelect.addEventListener('change', function() {
     difficulty = this.value;
-    if (difficulty === 'easy') {
-      tickInterval = 1500;
-      hydrationDrain = 3;
-      xpPerTick = 40;
-      progressPerTick = 12;
-      raiderPenalty = 10;
-      winXP = 300;
-    } else if (difficulty === 'hard') {
-      tickInterval = 900;
-      hydrationDrain = 8;
-      xpPerTick = 60;
-      progressPerTick = 8;
-      raiderPenalty = 30;
-      winXP = 700;
-    } else {
-      tickInterval = 1200;
-      hydrationDrain = 5;
-      xpPerTick = 50;
-      progressPerTick = 10;
-      raiderPenalty = 20;
-      winXP = 500;
-    }
+    setDifficultyParams();
   });
 }
+
+function setDifficultyParams() {
+  if (difficulty === 'easy') {
+    tickInterval = 1500;
+    hydrationDrain = 3;
+    xpPerTick = 40;
+    progressPerTick = 12;
+    raiderPenalty = 10;
+    winXP = 300;
+    raiderChance = 0.12;
+    timeLimit = 60; // 60 seconds
+  } else if (difficulty === 'hard') {
+    tickInterval = 900;
+    hydrationDrain = 8;
+    xpPerTick = 60;
+    progressPerTick = 8;
+    raiderPenalty = 30;
+    winXP = 700;
+    raiderChance = 0.32;
+    timeLimit = 30; // 30 seconds
+  } else {
+    tickInterval = 1200;
+    hydrationDrain = 5;
+    xpPerTick = 50;
+    progressPerTick = 10;
+    raiderPenalty = 20;
+    winXP = 500;
+    raiderChance = 0.2;
+    timeLimit = 45; // 45 seconds
+  }
+}
+setDifficultyParams();
 
 const raiderAlert=document.getElementById('raiderAlert');
 const dodgeBtn=document.getElementById('dodgeBtn');
@@ -69,7 +84,23 @@ function updateHUD(){
   const pct=Math.max(0,Math.min(progress,100));
   barEl.style.width=pct+'%';
   document.querySelector('.progress').setAttribute('aria-valuenow',pct.toString());
-
+  // Show time left if timer is running
+  let timeDiv = document.getElementById('timeLeft');
+  if (!timeDiv) {
+    timeDiv = document.createElement('div');
+    timeDiv.id = 'timeLeft';
+    timeDiv.style.fontWeight = '900';
+    timeDiv.style.fontSize = '1.1em';
+    timeDiv.style.color = '#FFD600';
+    timeDiv.style.margin = '8px 0';
+    barEl.parentElement.insertAdjacentElement('beforebegin', timeDiv);
+  }
+  if (timer) {
+    timeDiv.textContent = `⏱️ Time Left: ${timeLeft}s`;
+    timeDiv.style.display = '';
+  } else {
+    timeDiv.style.display = 'none';
+  }
   // Milestone message logic
   for (let i = milestoneMessages.length - 1; i >= 0; i--) {
     if (xp >= milestoneMessages[i].score && lastMilestone < milestoneMessages[i].score) {
@@ -105,29 +136,60 @@ function showMilestone(msg) {
     milestoneDiv.style.display = 'none';
   }, 2200);
 }
-}
 
 function tick(){
   progress+=progressPerTick; xp+=xpPerTick; hydration=Math.max(0,hydration-hydrationDrain);
   updateHUD();
-  // Raiders appear randomly (20% chance per tick)
-  if(Math.random()<0.2 && !raiderTimeout){
+  // Raiders appear randomly (difficulty-based chance per tick)
+  if(Math.random()<raiderChance && !raiderTimeout){
     showRaider();
   }
-  if(progress>=100 || xp>=winXP){ clearInterval(timer); timer=null; finishRun(); }
+  if(progress>=100 || xp>=winXP){ clearInterval(timer); timer=null; stopTimeLimit(); finishRun(); return; }
+}
+
+function timeTick() {
+  if (timer) {
+    timeLeft--;
+    updateHUD();
+    if (timeLeft <= 0) {
+      clearInterval(timer); timer=null;
+      stopTimeLimit();
+      showNarration('⏱️ Time is up! Try again.');
+      missionEl.hidden=true; resultsEl.hidden=false;
+      finalXPEl.textContent=xp;
+      factEl.textContent=facts[Math.floor(Math.random()*facts.length)];
+      document.getElementById('celebration').hidden=true;
+      raiderAlert.hidden=true;
+      if(raiderTimeout){ clearTimeout(raiderTimeout); raiderTimeout=null; }
+      // No leaderboard update on time out
+    }
+  }
+}
+
+function startTimeLimit() {
+  stopTimeLimit();
+  timeLeft = timeLimit;
+  timeInterval = setInterval(timeTick, 1000);
+}
+function stopTimeLimit() {
+  if (timeInterval) clearInterval(timeInterval);
+  timeInterval = null;
 }
 
 function startRun(){
   if(timer) return;
+  setDifficultyParams();
   progress=0; hydration=100; xp=0;
   updateHUD();
   raiderAlert.hidden=true;
   timer=setInterval(tick,tickInterval);
+  startTimeLimit();
   showNarration('Mission started! Run for the last clean water.');
 }
 
 function reset(){
   clearInterval(timer); timer=null;
+  stopTimeLimit();
   progress=0; hydration=100; xp=0; updateHUD();
   resultsEl.hidden=true; missionEl.hidden=false;
   raiderAlert.hidden=true;
@@ -139,6 +201,7 @@ function finishRun(){
   missionEl.hidden=true; resultsEl.hidden=false;
   finalXPEl.textContent=xp;
   factEl.textContent=facts[Math.floor(Math.random()*facts.length)];
+  playAudio(audioWin);
   confetti({particleCount:180,spread:70,origin:{y:0.7}});
   raiderAlert.hidden=true;
   if(raiderTimeout){ clearTimeout(raiderTimeout); raiderTimeout=null; }
@@ -188,19 +251,21 @@ function showRaider(){
   raiderTimeout=setTimeout(()=>{
     // Penalty if not dodged in time
     hydration=Math.max(0,hydration-raiderPenalty);
-    updateHUD();
-    raiderAlert.hidden=true;
-    raiderTimeout=null;
+  updateHUD();
+  playAudio(audioMiss);
+  raiderAlert.hidden=true;
+  raiderTimeout=null;
   }, 2500); // 2.5 seconds to dodge
 }
 
 dodgeBtn.addEventListener('click',()=>{
   if(raiderTimeout){
     xp+=30; // reward for dodging
-    updateHUD();
-    raiderAlert.hidden=true;
-    clearTimeout(raiderTimeout);
-    raiderTimeout=null;
+  updateHUD();
+  playAudio(audioCollect);
+  raiderAlert.hidden=true;
+  clearTimeout(raiderTimeout);
+  raiderTimeout=null;
   }
 });
 
@@ -223,17 +288,22 @@ resetBtn.addEventListener('click',reset);
 runAgainBtn.addEventListener('click',reset);
 updateHUD();
 
-// Sound/music toggle
+// Sound/music toggle and audio feedback
+const audioCollect = document.getElementById('audioCollect');
+const audioMiss = document.getElementById('audioMiss');
+const audioWin = document.getElementById('audioWin');
 const audioToggle = document.getElementById('audioToggle');
 let audioMuted = false;
+function playAudio(audEl) {
+  if (!audioMuted && audEl) {
+    audEl.currentTime = 0;
+    audEl.play();
+  }
+}
 if (audioToggle) {
   audioToggle.onclick = function() {
     audioMuted = !audioMuted;
-    let audios = [
-      document.getElementById('audioCollect'),
-      document.getElementById('audioMiss'),
-      document.getElementById('audioWin')
-    ];
+    let audios = [audioCollect, audioMiss, audioWin];
     audios.forEach(a => { if (a) a.muted = audioMuted; });
     audioToggle.textContent = audioMuted ? 'Unmute Audio' : 'Mute Audio';
   };
@@ -401,6 +471,7 @@ if (dropIcon) {
     dropIcon.classList.add('disappear');
     hydration = Math.min(100, hydration + 15);
     updateHUD();
+    playAudio(audioCollect);
     confetti({particleCount:60,spread:40,origin:{y:0.7}});
   });
 }

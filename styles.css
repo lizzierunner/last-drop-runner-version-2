@@ -82,12 +82,44 @@ button:hover{background:var(--gold)}
 .footer-link:hover {
 	color: var(--cyan);
 }
-.footer-link.donate {
-	color: var(--gold);
+/* Prominent donate button styles */
+.footer-link.donate.prominent-donate {
+	background: #FFD600;
+	color: #142E50 !important;
+	border-radius: 12px;
+	padding: 14px 32px;
+	font-size: 1.18em;
 	font-weight: 900;
-	background: rgba(255,214,0,0.08);
-	border-radius: 6px;
-	padding: 2px 8px;
+	box-shadow: 0 0 16px 4px #FFD60080;
+	display: inline-flex;
+	align-items: center;
+	gap: 12px;
+	border: none;
+	cursor: pointer;
+	transition: transform 0.2s, box-shadow 0.2s;
+	animation: pulse-donate 1.2s infinite;
+	text-decoration: none;
+}
+.footer-link.donate.prominent-donate:hover, .footer-link.donate.prominent-donate:focus {
+	background: #FFEB3B;
+	color: #142E50;
+	transform: scale(1.08);
+	box-shadow: 0 0 24px 8px #FFD600cc;
+}
+@keyframes pulse-donate {
+	0% { box-shadow: 0 0 16px 4px #FFD60080; }
+	50% { box-shadow: 0 0 32px 12px #FFD600cc; }
+	100% { box-shadow: 0 0 16px 4px #FFD60080; }
+}
+.donate-icon {
+	font-size: 1.4em;
+	font-weight: 900;
+	vertical-align: middle;
+}
+.donate-text {
+	font-size: 1.1em;
+	font-weight: 900;
+	vertical-align: middle;
 }
 /* Accessibility buttons */
 #contrastToggle {
