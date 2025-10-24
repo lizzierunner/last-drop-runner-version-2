@@ -198,10 +198,29 @@ function reset(){
 }
 
 function finishRun(){
-  missionEl.hidden=true; resultsEl.hidden=false;
+  missionEl.hidden=true; 
+  resultsEl.hidden=false;
   finalXPEl.textContent=xp;
   factEl.textContent=facts[Math.floor(Math.random()*facts.length)];
-  playAudio(audioWin);
+  // Ensure win sound plays even if muted was toggled
+  setTimeout(()=>{ 
+    if (audioWin) {
+      try {
+        audioWin.currentTime = 0;
+        let playPromise = audioWin.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(e => {
+            console.warn('Mission complete sound failed:', e);
+          });
+        }
+        console.log('Mission complete sound played.');
+      } catch (err) {
+        console.warn('Mission complete sound error:', err);
+      }
+    } else {
+      console.warn('audioWin element not found.');
+    }
+  }, 100);
   confetti({particleCount:180,spread:70,origin:{y:0.7}});
   raiderAlert.hidden=true;
   if(raiderTimeout){ clearTimeout(raiderTimeout); raiderTimeout=null; }
