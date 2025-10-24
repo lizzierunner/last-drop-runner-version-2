@@ -10,10 +10,13 @@
 <body>
   <canvas id="bgCanvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-1;pointer-events:none;"></canvas>
   <header class="hero">
+  <button id="musicToggleBtn" style="background:#56CCF2;color:#142E50;border-radius:8px;padding:8px 18px;margin:12px 0;font-weight:900;border:none;cursor:pointer;box-shadow:0 0 8px #56CCF2;" aria-label="Toggle soundtrack">Music: Off</button>
       <div class="cw-brand">
         <img src="assets/charity_water_logo.png" alt="charity: water logo" class="cw-logo"/>
         <span class="cw-name">charity: water</span>
       </div>
+  <!-- Tron soundtrack audio -->
+  <audio id="tronSoundtrack" src="assets/tron-theme.mp3" preload="auto" loop></audio>
   <!-- Drop logo removed -->
   <img src="assets/runner.png" alt="Cyberpunk desert runner" class="runner-img focal"/>
       <h1 class="main-title">LAST DROP</h1>

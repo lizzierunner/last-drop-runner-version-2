@@ -1,3 +1,346 @@
+// ...existing code...
+window.addEventListener('DOMContentLoaded', function() {
+  // Audio elements
+  const audioCollect = document.getElementById('audioCollect');
+  const audioMiss = document.getElementById('audioMiss');
+  const audioWin = document.getElementById('audioWin');
+  let audioMuted = false;
+  function playAudio(audEl) {
+    if (!audioMuted && audEl) {
+      audEl.currentTime = 0;
+      audEl.play();
+    }
+  }
+  // ...existing code...
+  // Game logic variables and functions
+  let hydration=100,xp=0,progress=0,timer=null;
+  let timeLeft = 0;
+  let timeLimit = 0;
+  let timeInterval = null;
+  const milestoneMessages = [
+    { score: 100, message: '💧 Milestone: First 100 XP! Every drop counts.' },
+    { score: 250, message: '🌟 Milestone: 250 XP! You are making a difference.' },
+    { score: 400, message: '🚀 Milestone: 400 XP! Water for more lives.' },
+    { score: 600, message: '🏆 Milestone: 600 XP! You are a true water hero.' }
+  ];
+  let lastMilestone = 0;
+  let difficulty = 'normal';
+  let tickInterval = 1200;
+  let hydrationDrain = 5;
+  let xpPerTick = 50;
+  let progressPerTick = 10;
+  let raiderPenalty = 20;
+  let winXP = 500;
+  let raiderChance = 0.2;
+  const hydrationEl=document.getElementById('hydration');
+  const xpEl=document.getElementById('xp');
+  const barEl=document.getElementById('bar');
+  const missionEl=document.getElementById('mission');
+  const resultsEl=document.getElementById('results');
+  const finalXPEl=document.getElementById('finalXP');
+  const factEl=document.getElementById('fact');
+  const difficultySelect = document.getElementById('difficulty');
+  if (difficultySelect) {
+    difficultySelect.addEventListener('change', function() {
+      difficulty = this.value;
+      setDifficultyParams();
+    });
+  }
+  function setDifficultyParams() {
+    if (difficulty === 'easy') {
+      tickInterval = 1500;
+      hydrationDrain = 3;
+      xpPerTick = 40;
+      progressPerTick = 12;
+      raiderPenalty = 10;
+      winXP = 300;
+      raiderChance = 0.12;
+      timeLimit = 60; // 60 seconds
+    } else if (difficulty === 'hard') {
+      tickInterval = 900;
+      hydrationDrain = 8;
+      xpPerTick = 60;
+      progressPerTick = 8;
+      raiderPenalty = 30;
+      winXP = 700;
+      raiderChance = 0.32;
+      timeLimit = 30; // 30 seconds
+    } else {
+      tickInterval = 1200;
+      hydrationDrain = 5;
+      xpPerTick = 50;
+      progressPerTick = 10;
+      raiderPenalty = 20;
+      winXP = 500;
+      raiderChance = 0.2;
+      timeLimit = 45; // 45 seconds
+    }
+  }
+  setDifficultyParams();
+  const raiderAlert=document.getElementById('raiderAlert');
+  const dodgeBtn=document.getElementById('dodgeBtn');
+  let raiderTimeout=null;
+  const facts=[
+   '703 million people lack access to clean water.',
+   'Collecting water often keeps kids out of school.',
+   'Clean water improves health and local economies.'
+  ];
+  function updateHUD(){
+    hydrationEl.textContent=hydration;
+    xpEl.textContent=xp;
+    const pct=Math.max(0,Math.min(progress,100));
+    barEl.style.width=pct+'%';
+    document.querySelector('.progress').setAttribute('aria-valuenow',pct.toString());
+    let timeDiv = document.getElementById('timeLeft');
+    if (!timeDiv) {
+      timeDiv = document.createElement('div');
+      timeDiv.id = 'timeLeft';
+      timeDiv.style.fontWeight = '900';
+      timeDiv.style.fontSize = '1.1em';
+      timeDiv.style.color = '#FFD600';
+      timeDiv.style.margin = '8px 0';
+      barEl.parentElement.insertAdjacentElement('beforebegin', timeDiv);
+    }
+    if (timer) {
+      timeDiv.textContent = `⏱️ Time Left: ${timeLeft}s`;
+      timeDiv.style.display = '';
+    } else {
+      timeDiv.style.display = 'none';
+    }
+    for (let i = milestoneMessages.length - 1; i >= 0; i--) {
+      if (xp >= milestoneMessages[i].score && lastMilestone < milestoneMessages[i].score) {
+        lastMilestone = milestoneMessages[i].score;
+        showMilestone(milestoneMessages[i].message);
+        break;
+      }
+    }
+  }
+  function showMilestone(msg) {
+    let milestoneDiv = document.getElementById('milestoneMsg');
+    if (!milestoneDiv) {
+      milestoneDiv = document.createElement('div');
+      milestoneDiv.id = 'milestoneMsg';
+      milestoneDiv.style.position = 'fixed';
+      milestoneDiv.style.top = '18px';
+      milestoneDiv.style.left = '50%';
+      milestoneDiv.style.transform = 'translateX(-50%)';
+      milestoneDiv.style.background = 'rgba(255,214,0,0.95)';
+      milestoneDiv.style.color = '#142E50';
+      milestoneDiv.style.fontWeight = '900';
+      milestoneDiv.style.fontSize = '1.35rem';
+      milestoneDiv.style.padding = '12px 32px';
+      milestoneDiv.style.borderRadius = '16px';
+      milestoneDiv.style.zIndex = '9999';
+      milestoneDiv.style.boxShadow = '0 0 24px #FFD600';
+      document.body.appendChild(milestoneDiv);
+    }
+    milestoneDiv.textContent = msg;
+    milestoneDiv.style.display = 'block';
+    setTimeout(() => {
+      milestoneDiv.style.display = 'none';
+    }, 2200);
+  }
+  function tick(){
+    progress+=progressPerTick; xp+=xpPerTick; hydration=Math.max(0,hydration-hydrationDrain);
+    updateHUD();
+    if(Math.random()<raiderChance && !raiderTimeout){
+      showRaider();
+    }
+    if(progress>=100 || xp>=winXP){ clearInterval(timer); timer=null; stopTimeLimit(); finishRun(); return; }
+  }
+  function timeTick() {
+    if (timer) {
+      timeLeft--;
+      updateHUD();
+      if (timeLeft <= 0) {
+        clearInterval(timer); timer=null;
+        stopTimeLimit();
+        showNarration('⏱️ Time is up! Try again.');
+        missionEl.hidden=true; resultsEl.hidden=false;
+        finalXPEl.textContent=xp;
+        factEl.textContent=facts[Math.floor(Math.random()*facts.length)];
+        document.getElementById('celebration').hidden=true;
+        raiderAlert.hidden=true;
+        if(raiderTimeout){ clearTimeout(raiderTimeout); raiderTimeout=null; }
+      }
+    }
+  }
+  function startTimeLimit() {
+    stopTimeLimit();
+    timeLeft = timeLimit;
+    timeInterval = setInterval(timeTick, 1000);
+  }
+  function stopTimeLimit() {
+    if (timeInterval) clearInterval(timeInterval);
+    timeInterval = null;
+  }
+  function startRun(){
+    if(timer) return;
+    setDifficultyParams();
+    progress=0; hydration=100; xp=0;
+    updateHUD();
+    raiderAlert.hidden=true;
+    timer=setInterval(tick,tickInterval);
+    startTimeLimit();
+    showNarration('Mission started! Run for the last clean water.');
+  }
+  function reset(){
+    clearInterval(timer); timer=null;
+    stopTimeLimit();
+    progress=0; hydration=100; xp=0; updateHUD();
+    resultsEl.hidden=true; missionEl.hidden=false;
+    raiderAlert.hidden=true;
+    if(raiderTimeout){ clearTimeout(raiderTimeout); raiderTimeout=null; }
+    lastMilestone = 0;
+  }
+  function finishRun(){
+    missionEl.hidden=true; 
+    resultsEl.hidden=false;
+    finalXPEl.textContent=xp;
+    factEl.textContent=facts[Math.floor(Math.random()*facts.length)];
+    setTimeout(()=>{ 
+      if (audioWin) {
+        try {
+          audioWin.currentTime = 0;
+          let playPromise = audioWin.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(e => {
+              console.warn('Mission complete sound failed:', e);
+            });
+          }
+          console.log('Mission complete sound played.');
+        } catch (err) {
+          console.warn('Mission complete sound error:', err);
+        }
+      } else {
+        console.warn('audioWin element not found.');
+      }
+    }, 100);
+    confetti({particleCount:180,spread:70,origin:{y:0.7}});
+    raiderAlert.hidden=true;
+    if(raiderTimeout){ clearTimeout(raiderTimeout); raiderTimeout=null; }
+    document.getElementById('celebration').hidden=false;
+    setTimeout(()=>{
+      document.getElementById('celebration').hidden=true;
+    }, 3500);
+    showNarration('Mission complete! You helped bring water to more lives.');
+    let scores = JSON.parse(localStorage.getItem('ld_scores') || '[]');
+    scores.push({ xp, date: new Date().toLocaleString() });
+    scores = scores.sort((a,b)=>b.xp-a.xp).slice(0,5);
+    localStorage.setItem('ld_scores', JSON.stringify(scores));
+    let best = scores[0]?.xp || xp;
+    let leaderboardDiv = document.getElementById('leaderboard');
+    if (leaderboardDiv) {
+      leaderboardDiv.innerHTML = `<h3>Leaderboard</h3><ul>` +
+        scores.map(s=>`<li>${s.xp} XP <span style='color:#FFD600'>${s.date}</span></li>`).join('') +
+        `</ul><p><strong>Personal Best:</strong> ${best} XP</p>`;
+    }
+      let skinDiv = document.getElementById('skinUnlock');
+      let skins = [
+        {name:'Classic', color:'#FFD600', milestone:0},
+        {name:'Aqua', color:'#56CCF2', milestone:250},
+        {name:'Gold', color:'#F2C94C', milestone:400},
+        {name:'Night', color:'#142E50', milestone:600}
+      ];
+      let unlocked = skins.filter(s=>best>=s.milestone);
+      if (skinDiv) {
+        skinDiv.innerHTML = `<h3>Unlocked Runner Skins</h3>` +
+          unlocked.map(s=>`<button class='skin-btn' style='background:${s.color};color:#142E50;font-weight:900;margin:4px 8px;border-radius:8px;padding:8px 18px;border:none;cursor:pointer' data-skin='${s.name}'>${s.name}</button>`).join('');
+      }
+      document.querySelectorAll('.skin-btn').forEach(btn=>{
+        btn.onclick = function() {
+          let runnerImg = document.querySelector('.runner-img.focal');
+          if (runnerImg) runnerImg.style.boxShadow = `0 0 32px 8px ${btn.style.background}, 0 0 80px 10px ${btn.style.background}`;
+        };
+      });
+  }
+  function showRaider(){
+    raiderAlert.hidden=false;
+    raiderTimeout=setTimeout(()=>{
+      hydration=Math.max(0,hydration-raiderPenalty);
+    updateHUD();
+    playAudio(audioMiss);
+    raiderAlert.hidden=true;
+    raiderTimeout=null;
+    }, 2500);
+  }
+  dodgeBtn.addEventListener('click',()=>{
+    if(raiderTimeout){
+      xp+=30;
+    updateHUD();
+    playAudio(audioCollect);
+    raiderAlert.hidden=true;
+    clearTimeout(raiderTimeout);
+    raiderTimeout=null;
+    }
+  });
+  updateHUD();
+  // ...existing code...
+  // DOM queries
+  const musicToggleBtn = document.getElementById('musicToggleBtn');
+  const tronSoundtrack = document.getElementById('tronSoundtrack');
+  const startBtn = document.getElementById('startBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const runAgainBtn = document.getElementById('runAgain');
+  const dropIcon = document.getElementById('dropIcon');
+  const runnerImg = document.querySelector('.runner-img.focal');
+  // Music toggle logic
+  let musicOn = false;
+  if (musicToggleBtn && tronSoundtrack) {
+    musicToggleBtn.addEventListener('click', function() {
+      musicOn = !musicOn;
+      if (musicOn) {
+        tronSoundtrack.volume = 0.5;
+        tronSoundtrack.play();
+        musicToggleBtn.textContent = 'Music: On';
+        musicToggleBtn.setAttribute('aria-label', 'Turn soundtrack off');
+      } else {
+        tronSoundtrack.pause();
+        musicToggleBtn.textContent = 'Music: Off';
+        musicToggleBtn.setAttribute('aria-label', 'Turn soundtrack on');
+      }
+    });
+  }
+  // Start button logic
+  if (startBtn) {
+    startBtn.addEventListener('click', function() {
+      startRun();
+      // Optionally play music if toggled on
+      if (musicOn && tronSoundtrack.paused) {
+        tronSoundtrack.play();
+      }
+    });
+  }
+  // Reset button logic
+  if (resetBtn) {
+    resetBtn.addEventListener('click', reset);
+  }
+  // Run Again button logic
+  if (runAgainBtn) {
+    runAgainBtn.addEventListener('click', reset);
+  }
+  // Interactive drop icon
+  if (dropIcon) {
+    dropIcon.addEventListener('click', function() {
+      dropIcon.classList.add('disappear');
+      hydration = Math.min(100, hydration + 15);
+      updateHUD();
+      playAudio(audioCollect);
+      confetti({particleCount:60,spread:40,origin:{y:0.7}});
+      setTimeout(() => dropIcon.classList.remove('disappear'), 1200);
+    });
+  }
+  // Runner image rotation
+  if (runnerImg) {
+    runnerImg.addEventListener('click', function() {
+      runnerImg.classList.add('rotate');
+      setTimeout(() => runnerImg.classList.remove('rotate'), 700);
+    });
+  }
+});
+if (startBtn) {
+  startBtn.addEventListener('click', startRun);
+}
 let hydration=100,xp=0,progress=0,timer=null;
 let timeLeft = 0;
 let timeLimit = 0;
@@ -321,54 +664,6 @@ function playAudio(audEl) {
 }
 if (audioToggle) {
   audioToggle.onclick = function() {
-    audioMuted = !audioMuted;
-    let audios = [audioCollect, audioMiss, audioWin];
-    audios.forEach(a => { if (a) a.muted = audioMuted; });
-    audioToggle.textContent = audioMuted ? 'Unmute Audio' : 'Mute Audio';
-  };
-}
-
-// Share button logic
-const shareBtn = document.getElementById('shareBtn');
-if (shareBtn) {
-  shareBtn.onclick = function() {
-    let score = document.getElementById('finalXP')?.textContent || '0';
-    let best = JSON.parse(localStorage.getItem('ld_scores') || '[]')[0]?.xp || score;
-    let msg = `I just completed Last Drop: A Charity Water Run with ${score} XP! My personal best is ${best} XP. Play and support clean water: https://www.charitywater.org/`;
-    if (navigator.share) {
-      navigator.share({ title: 'Last Drop Run', text: msg, url: window.location.href });
-    } else {
-      navigator.clipboard.writeText(msg);
-      shareBtn.textContent = 'Copied!';
-      setTimeout(()=>shareBtn.textContent='Share Result', 1800);
-    }
-  };
-}
-
-// Accessibility: High Contrast Mode
-const contrastBtn = document.getElementById('contrastToggle');
-let contrastOn = false;
-if (contrastBtn) {
-  contrastBtn.onclick = function() {
-    contrastOn = !contrastOn;
-    document.body.style.background = contrastOn ? '#000' : '';
-    document.body.style.color = contrastOn ? '#FFD600' : '';
-    document.querySelectorAll('.card,.hud,.mission,.results,.story,.impact').forEach(el=>{
-      el.style.background = contrastOn ? '#222' : '';
-      el.style.color = contrastOn ? '#FFD600' : '';
-    });
-  };
-}
-
-// Accessibility: Text to Speech
-const ttsBtn = document.getElementById('ttsBtn');
-if (ttsBtn) {
-  ttsBtn.onclick = function() {
-    let text = '';
-    let mission = document.getElementById('mission');
-    if (mission) text += mission.innerText + '\n';
-    let story = document.getElementById('story');
-    if (story) text += story.innerText + '\n';
     let impact = document.getElementById('impact');
     if (impact) text += impact.innerText + '\n';
     let utter = new window.SpeechSynthesisUtterance(text);
