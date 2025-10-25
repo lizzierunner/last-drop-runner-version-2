@@ -1,5 +1,147 @@
 // ...existing code...
 window.addEventListener('DOMContentLoaded', function() {
+  // Story choice popup logic
+  let storyChoiceMade = false;
+  function showStoryChoice() {
+    if (document.getElementById('storyChoicePopup')) return;
+    const popup = document.createElement('div');
+    popup.id = 'storyChoicePopup';
+    popup.style.position = 'fixed';
+    popup.style.top = '50%';
+    popup.style.left = '50%';
+    popup.style.transform = 'translate(-50%, -50%)';
+    popup.style.background = 'rgba(15,51,88,0.97)';
+    popup.style.color = '#FFD600';
+    popup.style.fontWeight = '900';
+    popup.style.fontSize = '1.18rem';
+    popup.style.padding = '22px 38px';
+    popup.style.borderRadius = '18px';
+    popup.style.zIndex = '99999';
+    popup.style.boxShadow = '0 0 24px #FFD600';
+    popup.innerHTML = `
+      <div style="margin-bottom:18px;">You find a hidden well. What do you do?</div>
+      <button id="choiceHelp" style="margin:8px 12px 0 0; background:#FFD600;color:#142E50;font-weight:900;border-radius:8px;padding:8px 18px;border:none;cursor:pointer;">Help Community</button>
+      <button id="choiceSolo" style="margin:8px 0 0 0; background:#56CCF2;color:#142E50;font-weight:900;border-radius:8px;padding:8px 18px;border:none;cursor:pointer;">Take Water & Run</button>
+    `;
+    document.body.appendChild(popup);
+    document.getElementById('choiceHelp').onclick = function() {
+      hydration = Math.min(100, hydration + 10);
+      xp += 40;
+      addItem('Community Thanks');
+      showMilestone('🌍 You helped the community!');
+      updateHUD();
+      updateRPGHUD();
+      popup.remove();
+      storyChoiceMade = true;
+    };
+    document.getElementById('choiceSolo').onclick = function() {
+      hydration = Math.min(100, hydration + 25);
+      xp += 10;
+      addItem('Extra Water');
+      showMilestone('💧 You took the water and ran!');
+      updateHUD();
+      updateRPGHUD();
+      popup.remove();
+      storyChoiceMade = true;
+    };
+  }
+
+  // Fix lint: declare oldTick once and chain tick overrides
+  let oldTick = tick;
+  // Update HUDs after each tick (RPG HUD and level up)
+  tick = function() {
+    oldTick();
+    updateRPGHUD();
+    checkLevelUp();
+    if (!storyChoiceMade && xp > 0) {
+      showStoryChoice();
+    }
+  };
+  // RPG elements: stats and inventory
+  let stamina = 10;
+  let agility = 10;
+  let luck = 10;
+  let inventory = [];
+  const staminaEl = document.getElementById('stamina');
+  const agilityEl = document.getElementById('agility');
+  const luckEl = document.getElementById('luck');
+  const inventoryEl = document.getElementById('inventory');
+
+  function updateRPGHUD() {
+    if (staminaEl) staminaEl.textContent = stamina;
+    if (agilityEl) agilityEl.textContent = agility;
+    if (luckEl) luckEl.textContent = luck;
+    if (inventoryEl) inventoryEl.textContent = inventory.length ? inventory.join(', ') : 'None';
+  }
+
+  // Level up logic
+  function levelUp() {
+    stamina += 2;
+    agility += 2;
+    luck += 1;
+    showMilestone('🎉 Level Up! Stats increased.');
+    updateRPGHUD();
+  }
+
+  // Add item to inventory
+  function addItem(item) {
+    inventory.push(item);
+    showMilestone(`🎒 Found: ${item}`);
+    updateRPGHUD();
+  }
+
+  // Example: add item on hydration boost
+  if (dropIcon) {
+    dropIcon.addEventListener('click', function() {
+      dropIcon.classList.add('disappear');
+      hydration = Math.min(100, hydration + 15 + Math.floor(stamina/5));
+      addItem('Water Filter');
+      updateHUD();
+      updateRPGHUD();
+      playAudio(audioCollect);
+      confetti({particleCount:60,spread:40,origin:{y:0.7}});
+      setTimeout(() => dropIcon.classList.remove('disappear'), 1200);
+    });
+  }
+
+  // Example: use agility for raider dodge
+  if (dodgeBtn) {
+    dodgeBtn.addEventListener('click',()=>{
+      if(raiderTimeout){
+        let dodgeSuccess = Math.random() < (0.7 + agility/50);
+        if (dodgeSuccess) {
+          xp+=30;
+          showMilestone('🏃 Dodge Success!');
+        } else {
+          hydration = Math.max(0, hydration - raiderPenalty);
+          showMilestone('💥 Dodge Failed!');
+        }
+        updateHUD();
+        updateRPGHUD();
+        playAudio(audioCollect);
+        raiderAlert.hidden=true;
+        clearTimeout(raiderTimeout);
+        raiderTimeout=null;
+      }
+    });
+  }
+
+  // Example: level up at XP milestones
+  function checkLevelUp() {
+    if (xp >= 200 && stamina < 20) levelUp();
+    if (xp >= 400 && stamina < 30) levelUp();
+  }
+
+  // Update HUDs after each tick
+  const oldTick = tick;
+  tick = function() {
+    oldTick();
+    updateRPGHUD();
+    checkLevelUp();
+  };
+
+  // Initial HUD update
+  updateRPGHUD();
   // Audio elements
   const audioCollect = document.getElementById('audioCollect');
   const audioMiss = document.getElementById('audioMiss');
