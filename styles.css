@@ -1,3 +1,59 @@
+#celebration .celebration-actions-row {
+	margin-top: 32px;
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	justify-content: center;
+	align-items: center;
+}
+/* Celebration popup controls */
+#celebration .celebration-actions {
+	margin-top: 32px;
+	display: flex;
+	gap: 24px;
+	justify-content: center;
+	align-items: center;
+}
+.close-btn {
+	background: #FFD600;
+	color: #142E50;
+	border: none;
+	border-radius: 50%;
+	width: 38px;
+	height: 38px;
+	font-size: 1.5em;
+	cursor: pointer;
+	box-shadow: 0 0 8px #FFD600;
+}
+#replayCelebration, #homeCelebration {
+	background: #56CCF2;
+	color: #142E50;
+	border-radius: 8px;
+	padding: 12px 28px;
+	font-weight: 700;
+	border: none;
+	cursor: pointer;
+	font-size: 1.08em;
+	box-shadow: 0 0 8px #56CCF2;
+}
+#homeCelebration {
+	background: #FFD600;
+	color: #142E50;
+	box-shadow: 0 0 8px #FFD600;
+}
+#replayCelebration, #homeCelebration {
+	background: #56CCF2;
+	color: #142E50;
+	border-radius: 6px;
+	padding: 8px 18px;
+	font-weight: 700;
+	border: none;
+	cursor: pointer;
+}
+#homeCelebration {
+	background: #FFD600;
+	color: #142E50;
+}
 .drop-icon.disappear {
 	opacity: 0;
 	pointer-events: none;

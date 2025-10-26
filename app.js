@@ -365,9 +365,31 @@ window.addEventListener('DOMContentLoaded', function() {
     raiderAlert.hidden=true;
     if(raiderTimeout){ clearTimeout(raiderTimeout); raiderTimeout=null; }
     document.getElementById('celebration').hidden=false;
-    setTimeout(()=>{
-      document.getElementById('celebration').hidden=true;
-    }, 3500);
+      // Add event listeners for celebration popup controls
+      setTimeout(()=>{
+        const closeBtn = document.getElementById('closeCelebration');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', function() {
+            document.getElementById('celebration').hidden = true;
+          });
+        }
+        const replayBtn = document.getElementById('replayCelebration');
+        if (replayBtn) {
+          replayBtn.addEventListener('click', function() {
+            document.getElementById('celebration').hidden = true;
+            reset();
+          });
+        }
+        const homeBtn = document.getElementById('homeCelebration');
+        if (homeBtn) {
+          homeBtn.addEventListener('click', function() {
+            document.getElementById('celebration').hidden = true;
+            resultsEl.hidden = true;
+            missionEl.hidden = false;
+          });
+        }
+      }, 100);
+  // Removed auto-hide timeout so users can always close celebration manually
     showNarration('Mission complete! You helped bring water to more lives.');
 
     // Leaderboard logic
